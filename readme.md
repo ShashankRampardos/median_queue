@@ -39,7 +39,7 @@ int main() {
     mq.pop(); // Removes the oldest element (5)
     
     std::cout << "\nAfter popping one element:" << std::endl;
-    std::cout << "Median: " << mq.getMedian() << std::endl; // Now median of {2, 8} is 5
+    std::cout << "Median: " << mq.getMedian() << std::endl; // Now median of {2, 8} is 2
     
     return 0;
 }
