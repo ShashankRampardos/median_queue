@@ -1,21 +1,111 @@
-# MedianQueue
+# StatQueue (formerly MedianQueue)
 
-A novel data structure that extends the capabilities of a standard queue by enabling O(1) retrieval of statistical measures such as median, mean, mode, min, max, and sum within a sliding window.
+A streaming data structure that supports FIFO operations while maintaining real-time statistical metrics.
 
-This project is implemented in C++ and registered under Copyright (Diary No. SW-30440/2025-CO).
+Unlike traditional approaches that compute statistics separately, StatQueue maintains:
 
-## 🚀 Features
+- Median
+- Mode
+- Mean
+- Min / Max
+- Sum
 
-- Queue operations (insert, pop, peek)
-- Constant-time access to:
-  - Median
-  - Mean
-  - Mode
-  - Min / Max
-  - Sum
-- Sliding window support (automatically maintains order with pop())
-- Fully self-contained, STL-based implementation
-- Resettable state with `dumpState()`
+…all together in a single unified structure.
+
+---
+
+## ⚡ Why this exists
+
+In streaming / sliding window problems, computing statistics typically requires:
+
+- Heaps for median (complex rebalancing)
+- Hash maps for mode (extra tracking)
+- Full traversal for mean/sum
+
+StatQueue combines all of these into one structure with:
+
+- O(log n) updates  
+- O(1) queries  
+- FIFO removal support  
+
+---
+
+## 🧠 Core Idea
+
+StatQueue combines:
+
+- **Ordered structure (multiset)** → median, min, max  
+- **Frequency buckets** → mode  
+- **Running sum** → mean  
+- **Deque (FIFO)** → sliding window  
+
+All structures stay synchronized on every insert/pop.
+
+---
+
+## 🧩 Internal Architecture
+
+            +-------------------+
+            |      Deque        |
+            |   (FIFO order)    |
+            +---------+---------+
+                      |
+                      v
+    +----------------------------------+
+    |          Multiset (BST)          |
+    |  Sorted order of elements        |
+    |  ↑ median pointer maintained     |
+    +----------------------------------+
+         |        |           |
+         v        v           v
+       Min      Median       Max
+
+    +-----------------------------+
+    |     Frequency Map           |
+    |     value → frequency       |
+    +-------------+---------------+
+                  |
+                  v
+    +-----------------------------+
+    |   Frequency Buckets         |
+    | freq → set of values        |
+    | (for O(1) mode retrieval)   |
+    +-----------------------------+
+
+    +-----------------------------+
+    |        Running Sum          |
+    |   used for mean calculation |
+    +-----------------------------+
+
+
+---
+
+## ⏱ Complexity
+
+| Operation     | Time Complexity |
+|--------------|----------------|
+| insert(x)     | O(log n)       |
+| pop()         | O(log n)       |
+| getMedian()   | O(1)           |
+| getMode()     | O(1)           |
+| getMean()     | O(1)           |
+| getMin/Max()  | O(1)           |
+| getSum()      | O(1)           |
+
+---
+
+## 🔍 Comparison
+
+| Feature        | Heaps | Multiset | StatQueue |
+|---------------|------|----------|----------|
+| Median        | ✅   | ✅       | ✅       |
+| Mode          | ❌   | ❌       | ✅       |
+| Mean / Sum    | ❌   | ❌       | ✅       |
+| Min / Max     | ❌   | ✅       | ✅       |
+| FIFO support  | ❌   | ❌       | ✅       |
+| Unified DS    | ❌   | ❌       | ✅       |
+
+---
 
 ## 📖 Usage Example
 
@@ -36,14 +126,15 @@ int main() {
     std::cout << "Max: " << mq.getMax() << std::endl;
     std::cout << "Sum: " << mq.getSum() << std::endl;
 
-    mq.pop(); // Removes the oldest element (5)
-    
+    mq.pop();
+
     std::cout << "\nAfter popping one element:" << std::endl;
-    std::cout << "Median: " << mq.getMedian() << std::endl; // Now median of {2, 8} is 2
-    
+    std::cout << "Median: " << mq.getMedian() << std::endl;
+
     return 0;
 }
 ```
+   
 ## 📌 Applications
 
 - Real-time analytics with sliding windows
@@ -57,7 +148,7 @@ int main() {
 
 **Author:** Shashank Vashistha  
 **Copyright:** Registered (Diary No. SW-30440/2025-CO)  
-Open for academic and educational.
+Open for academic and educational use.
 
 ---
 
